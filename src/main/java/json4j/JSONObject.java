@@ -14,7 +14,7 @@ public class JSONObject {
     }
 
     public JSONObject(){
-        this.values = new HashMap<String, JSONValue>();
+        this.values = new HashMap<>();
 
     }
 }

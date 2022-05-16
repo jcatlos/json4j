@@ -15,7 +15,7 @@ public class JSONList {
     }
 
     public JSONList(){
-        this.values = new LinkedList<JSONValue>();
+        this.values = new LinkedList<>();
         this.length = 0;
     }
 }
