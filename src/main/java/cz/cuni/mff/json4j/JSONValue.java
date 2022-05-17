@@ -39,7 +39,7 @@ public class JSONValue {
         this.type = JSON_TYPE.OBJECT;
     }
 
-    public JSONValue(JSONList value){
+    public JSONValue(JSONArray value){
         this.value = value;
         this.type = JSON_TYPE.ARRAY;
     }
@@ -47,5 +47,10 @@ public class JSONValue {
     public JSONValue(){
         this.value = null;
         this.type = JSON_TYPE.NULL;
+    }
+
+    @Override
+    public String toString(){
+        return this.value.toString();
     }
 }
