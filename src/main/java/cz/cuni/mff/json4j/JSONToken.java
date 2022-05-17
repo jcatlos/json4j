@@ -11,7 +11,9 @@ enum TOKEN_TYPE {
     NUMBER,
     BOOLEAN,
     NULL,
-    INVALID_TOKEN
+    INVALID_TOKEN,
+    EOF
+
 }
 
 public class JSONToken {
@@ -27,6 +29,16 @@ public class JSONToken {
 
     public final TOKEN_TYPE type;
     public final Object value;
+
+
+    public static JSONToken generateEOFToken(){
+        return new JSONToken(TOKEN_TYPE.EOF, null);
+    }
+
+    private JSONToken(TOKEN_TYPE type, Object value){
+        this.type = type;
+        this.value = value;
+    }
 
     public JSONToken(String token_string){
         switch (token_string){

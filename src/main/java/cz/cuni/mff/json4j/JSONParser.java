@@ -8,7 +8,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 public class JSONParser {
 
     int index;
-    char current_char;
+    Character current_char;
     String source;
     Stack<JSONElementBuilder> scope;
 
@@ -31,9 +31,20 @@ public class JSONParser {
         }
     }
 
+    private boolean eof(){
+        return index >= source.length();
+    }
+
     private void increment_index(){
         index++;
-        current_char = source.charAt(index);
+        //System.out.println("current index = " + String.valueOf(index));
+        if(!this.eof()){
+            current_char = source.charAt(index);
+        }
+        else{
+            current_char = null;
+        }
+        //System.out.println("current char = " + current_char);
     }
 
     private static boolean is_whitespace(char c){
@@ -50,7 +61,13 @@ public class JSONParser {
         return false;
     }
 
-    private JSONToken get_next_token(){
+    private JSONToken get_next_token() throws JSONUnfinishedStringAtEOF {
+
+        // Handle being at the end of source
+        if(this.eof()){
+            return JSONToken.generateEOFToken();
+        }
+
         // Read all whitespace before token
         while(is_whitespace(current_char)){
             this.increment_index();
@@ -58,10 +75,14 @@ public class JSONParser {
 
         StringBuilder token_sb = new StringBuilder();
 
+
         if(current_char == QUOTE){
            do {
                 token_sb.append(current_char);
                 this.increment_index();
+                if(this.eof()){
+                    throw new JSONUnfinishedStringAtEOF();
+                }
             }  while(current_char != QUOTE);
             token_sb.append(current_char);
             this.increment_index();
@@ -75,7 +96,7 @@ public class JSONParser {
             do {
                 token_sb.append(current_char);
                 this.increment_index();
-            }  while(!is_whitespace(current_char) && !is_token_char(current_char));
+            }  while(!is_whitespace(current_char) && !is_token_char(current_char) && !this.eof());
         }
 
         return new JSONToken(token_sb.toString());
@@ -86,7 +107,7 @@ public class JSONParser {
     }
 
     // Pridat streamove citanie?
-    public ArrayList<JSONValue> parseString() throws JSONMalformedSourceException {
+    public ArrayList<JSONValue> parseString() throws JSONMalformedSourceException, JSONUnfinishedStringAtEOF {
 
         // The list of JSON values from the source
         ArrayList<JSONValue>  values = new ArrayList<>();
