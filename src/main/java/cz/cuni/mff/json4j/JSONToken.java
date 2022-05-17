@@ -13,7 +13,18 @@ enum TOKEN_TYPE {
     NULL,
     INVALID_TOKEN,
     EOF
+    ;
 
+    public boolean isValue(){
+        return(
+                this == STRING_LITERAL ||
+                        this == NUMBER ||
+                        this == BOOLEAN ||
+                        this == NULL ||
+                        this == START_OBJECT ||
+                        this == START_ARRAY
+        );
+    }
 }
 
 public class JSONToken {
