@@ -1,4 +1,4 @@
-package json4j;
+package cz.cuni.mff.json4j;
 
 enum TOKEN_TYPE {
     START_OBJECT,

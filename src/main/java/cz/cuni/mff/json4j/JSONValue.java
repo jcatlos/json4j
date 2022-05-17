@@ -1,4 +1,4 @@
-package json4j;
+package cz.cuni.mff.json4j;
 
 /**
  * Represents a JSON type.
