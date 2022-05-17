@@ -98,7 +98,7 @@ public class JSONToken {
                 Object temp_value;
                 try{
                     temp_type  = TOKEN_TYPE.NUMBER;
-                    temp_value = Integer.parseInt(token_string);
+                    temp_value = Double.parseDouble(token_string);
                 }
                 catch (NumberFormatException e){
                     // Otherwise token is invalid
