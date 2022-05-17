@@ -15,16 +15,6 @@ enum TOKEN_TYPE {
     EOF
     ;
 
-    public boolean isValue(){
-        return(
-                this == STRING_LITERAL ||
-                        this == NUMBER ||
-                        this == BOOLEAN ||
-                        this == NULL ||
-                        this == START_OBJECT ||
-                        this == START_ARRAY
-        );
-    }
 }
 
 public class JSONToken {
