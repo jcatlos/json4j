@@ -1,5 +1,6 @@
 package cz.cuni.mff.json4j;
 
+import java.lang.reflect.MalformedParameterizedTypeException;
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -11,6 +12,10 @@ public class JSONParser {
     Character current_char;
     String source;
     Stack<JSONElementBuilder> scope;
+
+    ArrayList<JSONToken> tokens;
+    int token_index;
+    JSONToken current_token;
 
     // CHARACTER CONSTANTS
     final static char QUOTE  = '"';
@@ -29,20 +34,38 @@ public class JSONParser {
         if(source.length() > 0){
             current_char = source.charAt(0);
         }
+
+        token_index = 0;
+        tokens = new ArrayList<>();
     }
 
     private boolean eof(){
         return index >= source.length();
     }
 
+    private boolean eot(){
+        return token_index >= tokens.size();
+    }
+
+    private void increment_token(){
+        token_index++;
+        //System.out.println("current index = " + String.valueOf(index));
+        if(this.eot()){
+            current_token = null;
+        }
+        else{
+            current_token = this.tokens.get(token_index);
+        }
+    }
+
     private void increment_index(){
         index++;
         //System.out.println("current index = " + String.valueOf(index));
-        if(!this.eof()){
-            current_char = source.charAt(index);
+        if(this.eof()){
+            current_char = null;
         }
         else{
-            current_char = null;
+            current_char = source.charAt(index);
         }
         //System.out.println("current char = " + current_char);
     }
@@ -75,7 +98,6 @@ public class JSONParser {
 
         StringBuilder token_sb = new StringBuilder();
 
-
         if(current_char == QUOTE){
            do {
                 token_sb.append(current_char);
@@ -102,8 +124,73 @@ public class JSONParser {
         return new JSONToken(token_sb.toString());
     }
 
-    private void evaluate_token(JSONToken token){
-        //TODO
+    private JSONValue get_array() throws JSONMalformedSourceException{
+        JSONArray array = new JSONArray();
+        JSONValue new_value;
+
+        increment_token();
+        if(current_token.type == TOKEN_TYPE.END_ARRAY){
+            return new JSONValue(array);
+        }
+
+        new_value = get_value();
+        System.out.println("got " + new_value);
+        array.add(new_value);
+
+        increment_token();
+        while(!this.eot() && current_token.type != TOKEN_TYPE.END_ARRAY){
+            if(current_token.type == TOKEN_TYPE.ELEMENT_DELIMITER){
+                increment_token();
+                new_value = get_value();
+                System.out.println("got " + new_value);
+                array.add(new_value);
+            }
+            else {
+                throw new MalformedParameterizedTypeException(
+                        "Expected an element separator between values in Array, found "
+                            + current_token.value.toString()
+                );
+            }
+            increment_token();
+        }
+
+        return new JSONValue(array);
+    }
+
+    private JSONValue get_value() throws JSONMalformedSourceException {
+        JSONToken current_token = tokens.get(token_index);
+
+        switch(current_token.type) {
+            case STRING_LITERAL -> {
+                return new JSONValue((String) current_token.value);
+            }
+            case NUMBER -> {
+                return new JSONValue((Double) current_token.value);
+            }
+            case BOOLEAN -> {
+                return new JSONValue((boolean) current_token.value);
+            }
+            case NULL -> {
+                return new JSONValue();
+            }
+            case START_ARRAY -> {
+                return get_array();
+            }
+            case START_OBJECT -> {
+                return new JSONValue();
+            }
+            default -> {
+                throw new JSONMalformedSourceException("Expected a value, provided " + current_token.value.toString());
+            }
+        }
+    }
+
+    private void getTokens() throws JSONUnfinishedStringAtEOF{
+        while(index < source.length()){
+            JSONToken token = this.get_next_token();
+            tokens.add(token);
+            System.out.println(token.type.toString());
+        }
     }
 
     // Pridat streamove citanie?
@@ -113,11 +200,8 @@ public class JSONParser {
         ArrayList<JSONValue>  values = new ArrayList<>();
         JSONValue read_value;
 
-        while(index < source.length()){
-            JSONToken token = this.get_next_token();
-            System.out.println(token.type.toString());
-            //evaluate_token(token);
-        }
+        this.getTokens();
+        values.add(get_value());
 
         return values;
     }
