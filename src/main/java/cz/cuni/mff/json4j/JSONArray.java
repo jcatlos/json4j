@@ -5,13 +5,16 @@ import java.util.LinkedList;
 public class JSONArray {
     private LinkedList<JSONValue> values;
 
-    // Pridat aj set funkciu
     public JSONValue get(int index){
         return values.get(index);
     }
 
     public void add(JSONValue value){
         values.add(value);
+    }
+
+    public void set(int index, JSONValue value){
+        values.set(index, value);
     }
 
     public int size(){
