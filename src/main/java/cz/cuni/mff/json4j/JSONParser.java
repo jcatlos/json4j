@@ -2,34 +2,34 @@ package cz.cuni.mff.json4j;
 
 import java.lang.reflect.MalformedParameterizedTypeException;
 import java.util.ArrayList;
-import java.util.Stack;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
+
 public class JSONParser {
 
-    int index;
+    int char_index;
     Character current_char;
-    String source;
+    String json_source;
 
     ArrayList<JSONToken> tokens;
     int token_index;
     JSONToken current_token;
 
     // CHARACTER CONSTANTS
-    final static char QUOTE  = '"';
+    final static char QUOTE_CHAR = '"';
     final static char[] WHITESPACE = {' ', '\t', '\n', '\r'};
-    final static char[] TOKEN_CHAR = {'{', '}', '[', ']', ',', ':'};
+    final static char[] TOKEN_CHARS = {'{', '}', '[', ']', ',', ':'};
 
     public JSONParser(String source_string){
 
         // Handle all unicode character sequences in the source
-        source = StringEscapeUtils.unescapeJava(source_string.trim());
+        json_source = StringEscapeUtils.unescapeJava(source_string.trim());
 
         // Initialize reading index and current_char at the beginning
-        index = 0;
-        if(source.length() > 0){
-            current_char = source.charAt(0);
+        char_index = 0;
+        if(json_source.length() > 0){
+            current_char = json_source.charAt(0);
         }
 
         token_index = 0;
@@ -37,7 +37,7 @@ public class JSONParser {
     }
 
     private boolean eof(){
-        return index >= source.length();
+        return char_index >= json_source.length();
     }
 
     private boolean eot(){
@@ -46,25 +46,12 @@ public class JSONParser {
 
     private void increment_token(){
         token_index++;
-        //System.out.println("current index = " + String.valueOf(index));
-        if(this.eot()){
-            current_token = null;
-        }
-        else{
-            current_token = this.tokens.get(token_index);
-        }
+        current_token = this.eot() ? null : this.tokens.get(token_index);
     }
 
     private void increment_index(){
-        index++;
-        //System.out.println("current index = " + String.valueOf(index));
-        if(this.eof()){
-            current_char = null;
-        }
-        else{
-            current_char = source.charAt(index);
-        }
-        //System.out.println("current char = " + current_char);
+        char_index++;
+        current_char = this.eof() ? null : json_source.charAt(char_index);
     }
 
     private static boolean is_whitespace(char c){
@@ -75,7 +62,7 @@ public class JSONParser {
     }
 
     private static boolean is_token_char(char c){
-        for(char tk: TOKEN_CHAR){
+        for(char tk: TOKEN_CHARS){
             if(tk == c) return true;
         }
         return false;
@@ -95,14 +82,14 @@ public class JSONParser {
 
         StringBuilder token_sb = new StringBuilder();
 
-        if(current_char == QUOTE){
+        if(current_char == QUOTE_CHAR){
            do {
                 token_sb.append(current_char);
                 this.increment_index();
                 if(this.eof()){
                     throw new JSONUnfinishedStringAtEOF();
                 }
-            }  while(current_char != QUOTE);
+            }  while(current_char != QUOTE_CHAR);
             token_sb.append(current_char);
             this.increment_index();
         }
@@ -119,6 +106,13 @@ public class JSONParser {
         }
 
         return new JSONToken(token_sb.toString());
+    }
+
+    private void getTokens() throws JSONUnfinishedStringAtEOF{
+        while(char_index < json_source.length()){
+            JSONToken token = this.get_next_token();
+            tokens.add(token);
+        }
     }
 
     private JSONValue get_array() throws JSONMalformedSourceException{
@@ -222,14 +216,6 @@ public class JSONParser {
 
         increment_token();
         return value;
-    }
-
-    private void getTokens() throws JSONUnfinishedStringAtEOF{
-        while(index < source.length()){
-            JSONToken token = this.get_next_token();
-            tokens.add(token);
-            System.out.println(token.type.toString());
-        }
     }
 
     // Pridat streamove citanie?
