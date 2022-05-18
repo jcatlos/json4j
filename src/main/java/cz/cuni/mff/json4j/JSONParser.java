@@ -201,7 +201,10 @@ public class JSONParser {
     }
 
     private JSONValue get_value() throws JSONMalformedSourceException {
+
         JSONToken current_token = tokens.get(token_index);
+
+        // Check if the token is of type
         JSONValue value;
 
         switch(current_token.type) {
