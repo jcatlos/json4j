@@ -200,21 +200,34 @@ public class JSONParser {
         return new JSONValue(object);
     }
 
+    /**
+     * Fetches a value starting at the currently processed token.
+     * If the value is not an Object or Array, only one token is processed.
+     * Otherwise all tokens until next END_OBJECT / END_ARRAY are processed.
+     * DOES NOT move the token_index behind the value (for compound values
+     * the index points at the last token of the value).
+     *
+     * @return JSONValue of the current token
+     * @throws JSONMalformedSourceException If the current token is not a value
+     */
     private JSONValue get_value() throws JSONMalformedSourceException {
 
         JSONToken current_token = tokens.get(token_index);
 
-        // Check if the token is of type
+        // Check if the token is a value and return appropriate JSONValue
         JSONValue value;
-
         switch(current_token.type) {
-            case STRING_LITERAL -> value = new JSONValue((String) current_token.value);
-            case NUMBER -> value = new JSONValue((Double) current_token.value);
-            case BOOLEAN -> value = new JSONValue((boolean) current_token.value);
-            case NULL -> value = new JSONValue();
-            case START_ARRAY -> value = get_array();
-            case START_OBJECT -> value = get_object();
-            default -> throw new JSONMalformedSourceException("Expected a value, provided " + current_token.value.toString());
+            case STRING_LITERAL ->  value = new JSONValue((String) current_token.value);
+            case NUMBER ->          value = new JSONValue((Double) current_token.value);
+            case BOOLEAN ->         value = new JSONValue((boolean) current_token.value);
+            case NULL ->            value = new JSONValue();
+            case START_ARRAY ->     value = get_array();
+            case START_OBJECT ->    value = get_object();
+            default -> {
+                // The token is not value -> Throw
+                throw new JSONMalformedSourceException(
+                        "Expected a value, provided " + current_token.value.toString());
+            }
         }
 
         increment_token();
