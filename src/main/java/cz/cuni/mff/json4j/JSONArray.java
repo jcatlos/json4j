@@ -4,8 +4,8 @@ import java.util.LinkedList;
 
 public class JSONArray {
     private LinkedList<JSONValue> values;
-    private int length;
 
+    // Pridat aj set funkciu
     public JSONValue get(int index){
         return values.get(index);
     }
@@ -20,7 +20,6 @@ public class JSONArray {
 
     public JSONArray(){
         this.values = new LinkedList<>();
-        this.length = 0;
     }
 
     public JSONArray(LinkedList<JSONValue> values){
