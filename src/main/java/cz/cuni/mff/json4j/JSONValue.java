@@ -49,11 +49,27 @@ public class JSONValue {
         this.type = JSON_TYPE.NULL;
     }
 
-    @Override
-    public String toString(){
+    public String serialize_compact(){
         if(this.type == JSON_TYPE.STRING){
             return "\"" + this.value.toString() + "\"";
         }
         return this.value.toString();
+    }
+
+    public String serialize_readable(){
+        if(this.type == JSON_TYPE.ARRAY){
+            JSONArray arr = (JSONArray) this.value;
+            return arr.serialize_readable();
+        }
+        if(this.type == JSON_TYPE.OBJECT){
+            JSONObject obj = (JSONObject) this.value;
+            return obj.serialize_readable();
+        }
+        return this.serialize_compact();
+    }
+
+    @Override
+    public String toString(){
+        return this.serialize_compact();
     }
 }
