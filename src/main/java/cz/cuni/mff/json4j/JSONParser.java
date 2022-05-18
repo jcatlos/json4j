@@ -171,19 +171,37 @@ public class JSONParser {
 
     }
 
+    /**
+     * Processes a JSON object starting at the currently processed token.
+     * Expects the token_index to point at a START_OBJECT token ('{').
+     *
+     * @return The JSON object wrapped in a JSONValue.
+     * @throws JSONMalformedSourceException When the object does not conform
+     * to the grammar or an EOT is found during processing.
+     */
     private JSONValue get_object() throws JSONMalformedSourceException{
-        JSONObject object = new JSONObject();
-        String new_key;
-        JSONValue new_value;
 
+        // The object to be returned
+        JSONObject object = new JSONObject();
+
+        // token_index now points at START_OBJECT
         increment_token();
 
+        // To deal with no trailing comma, we do these steps:
+            // 1.) If the object contains no values, return empty object
+            // 2.) Read a value WITHOUT comma after it
+            // 3.) Until the end of the object, we will read in order
+            //     COMMA, KEY, COLON, VALUE
+
+        // Step 1.)
         if(current_token.type == TOKEN_TYPE.END_OBJECT){
             return new JSONValue(object);
         }
 
+        // Step 2.)
         add_key_value(object);
 
+        // Step 3.)
         while(!this.eot() && current_token.type != TOKEN_TYPE.END_OBJECT){
             if(current_token.type == TOKEN_TYPE.ELEMENT_DELIMITER){
                 increment_token();
@@ -191,10 +209,18 @@ public class JSONParser {
             }
             else {
                 throw new MalformedParameterizedTypeException(
-                        "Expected an element separator between values in Object, found "
-                                + current_token.value.toString()
+                        "Expected an element separator between values in " +
+                                "Object, found " + current_token.value
                 );
             }
+        }
+
+        // If the construction ended by finding EOT, we throw
+            // No closing bracket found
+        if(this.eot()){
+            throw new MalformedParameterizedTypeException(
+                    "Unexpected end of file during Object construction"
+            );
         }
 
         return new JSONValue(object);
