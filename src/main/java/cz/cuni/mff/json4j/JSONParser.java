@@ -11,7 +11,6 @@ public class JSONParser {
     int index;
     Character current_char;
     String source;
-    Stack<JSONElementBuilder> scope;
 
     ArrayList<JSONToken> tokens;
     int token_index;
@@ -26,8 +25,6 @@ public class JSONParser {
 
         // Handle all unicode character sequences in the source
         source = StringEscapeUtils.unescapeJava(source_string.trim());
-
-        scope = new Stack<>();
 
         // Initialize reading index and current_char at the beginning
         index = 0;
