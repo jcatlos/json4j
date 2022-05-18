@@ -1,8 +1,6 @@
 package cz.cuni.mff.json4j;
 
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Map.Entry;
 
 public class JSONObject {
@@ -32,12 +30,7 @@ public class JSONObject {
         out.append('{');
         for (Entry<String, JSONValue> stringJSONValueEntry : this.values.entrySet()) {
             var pair = (Entry) stringJSONValueEntry;
-            out.append("\"");
-            out.append(pair.getKey());
-            out.append("\"");
-            out.append(':');
-            out.append(pair.getValue().toString());
-            out.append(',');
+            out.append(String.format("\"%s\":%s,", pair.getKey(), pair.getValue()));
         }
         out.deleteCharAt(out.length()-1);
         out.append('}');
