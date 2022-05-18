@@ -222,18 +222,12 @@ public class JSONParser {
     }
 
     // Pridat streamove citanie?
-    public ArrayList<JSONValue> parseString() throws JSONMalformedSourceException, JSONUnfinishedStringAtEOF {
+    public JSONValue parseString() throws JSONMalformedSourceException, JSONUnfinishedStringAtEOF {
 
-        // The list of JSON values from the source
-        ArrayList<JSONValue>  values = new ArrayList<>();
-        JSONValue read_value;
-
+        // Tokenize the input string
         this.getTokens();
 
-        while(!eot()){
-            values.add(get_value());
-        }
-
-        return values;
+        // All JSON inputs must contain only one value
+        return get_value();
     }
 }
