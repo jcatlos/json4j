@@ -2,7 +2,7 @@ package cz.cuni.mff.json4j;
 
 import java.util.LinkedList;
 
-public class JSONList {
+public class JSONArray {
     private LinkedList<JSONValue> values;
     private int length;
 
