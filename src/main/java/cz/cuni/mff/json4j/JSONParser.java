@@ -115,25 +115,42 @@ public class JSONParser {
         }
     }
 
+    /**
+     * Processes a JSON array starting at the currently processed token.
+     * Expects the token_index to point at a START_ARRAY token ('[').
+     * After running the current token points at the END_ARRAY token (']').
+     *
+     * @return The JSON Array wrapped in a JSONValue.
+     * @throws JSONMalformedSourceException When the array does not conform
+     * to the grammar or an EOT is found during processing.
+     */
     private JSONValue get_array() throws JSONMalformedSourceException{
-        JSONArray array = new JSONArray();
-        JSONValue new_value;
 
+        // The Array to be returned
+        JSONArray array = new JSONArray();
+
+        // token_index now points at START_OBJECT
         increment_token();
+
+        // To deal with no trailing comma, we do these steps:
+        // 1.) If the array contains no values, return empty array
+        // 2.) Read a value WITHOUT comma after it
+        // 3.) Until the end of the array, we will read in order
+        //     COMMA, VALUE
+
+        // Step 1.)
         if(current_token.type == TOKEN_TYPE.END_ARRAY){
             return new JSONValue(array);
         }
 
-        new_value = get_value();
-        System.out.println("got " + new_value);
-        array.add(new_value);
+        //Step 2.)
+        array.add(get_value());
 
+        // Step 3.)
         while(!this.eot() && current_token.type != TOKEN_TYPE.END_ARRAY){
             if(current_token.type == TOKEN_TYPE.ELEMENT_DELIMITER){
                 increment_token();
-                new_value = get_value();
-                System.out.println("got " + new_value);
-                array.add(new_value);
+                array.add(get_value());
             }
             else {
                 throw new MalformedParameterizedTypeException(
@@ -141,7 +158,14 @@ public class JSONParser {
                             + current_token.value.toString()
                 );
             }
+        }
 
+        // If the construction ended by finding EOT, we throw
+            // No closing bracket found
+        if(this.eot()){
+            throw new MalformedParameterizedTypeException(
+                    "Unexpected end of file during Array construction"
+            );
         }
 
         return new JSONValue(array);
