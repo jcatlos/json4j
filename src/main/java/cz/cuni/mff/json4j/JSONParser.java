@@ -171,7 +171,7 @@ public class JSONParser {
 
         // Process value
         JSONValue value = get_value();
-        object.add(key, value);
+        object.put(key, value);
 
         System.out.println("got " + key + " : " + value.toString());
 

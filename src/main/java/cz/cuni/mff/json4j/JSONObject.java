@@ -6,8 +6,7 @@ import java.util.Map.Entry;
 public class JSONObject {
     private HashMap<String, JSONValue> values;
 
-    // Pridat aj set funkciu
-    public void add(String key, JSONValue value){
+    public void put(String key, JSONValue value){
         values.put(key, value);
     }
 
