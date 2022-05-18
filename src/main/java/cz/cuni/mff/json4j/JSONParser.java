@@ -228,6 +228,7 @@ public class JSONParser {
 
     /**
      * Fetches a value starting at the currently processed token.
+     * Expects the token_index to be at a JSON value.
      * If the value is not an Object or Array, only one token is processed.
      * Otherwise all tokens until next END_OBJECT / END_ARRAY are processed.
      * DOES NOT move the token_index behind the value (for compound values
