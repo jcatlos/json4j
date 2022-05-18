@@ -44,31 +44,31 @@ public class JSONParser {
         return token_index >= tokens.size();
     }
 
-    private void increment_token(){
+    private void incrementToken(){
         token_index++;
         current_token = this.eot() ? null : this.tokens.get(token_index);
     }
 
-    private void increment_index(){
+    private void incrementIndex(){
         char_index++;
         current_char = this.eof() ? null : json_source.charAt(char_index);
     }
 
-    private static boolean is_whitespace(char c){
+    private static boolean isWhitespace(char c){
         for(char ws: WHITESPACE){
             if(ws == c) return true;
         }
         return false;
     }
 
-    private static boolean is_token_char(char c){
+    private static boolean isTokenChar(char c){
         for(char tk: TOKEN_CHARS){
             if(tk == c) return true;
         }
         return false;
     }
 
-    private JSONToken get_next_token() throws JSONUnfinishedStringAtEOF {
+    private JSONToken getNextToken() throws JSONUnfinishedStringAtEOF {
 
         // Handle being at the end of source
         if(this.eof()){
@@ -76,8 +76,8 @@ public class JSONParser {
         }
 
         // Read all whitespace before token
-        while(is_whitespace(current_char)){
-            this.increment_index();
+        while(isWhitespace(current_char)){
+            this.incrementIndex();
         }
 
         StringBuilder token_sb = new StringBuilder();
@@ -85,32 +85,38 @@ public class JSONParser {
         if(current_char == QUOTE_CHAR){
            do {
                 token_sb.append(current_char);
-                this.increment_index();
+                this.incrementIndex();
                 if(this.eof()){
                     throw new JSONUnfinishedStringAtEOF();
                 }
             }  while(current_char != QUOTE_CHAR);
             token_sb.append(current_char);
-            this.increment_index();
+            this.incrementIndex();
         }
-        else if(is_token_char(current_char)){
+        else if(isTokenChar(current_char)){
             String token_string = new String(new char[]{current_char});
-            this.increment_index();
+            this.incrementIndex();
             return new JSONToken(token_string);
         }
         else{
             do {
                 token_sb.append(current_char);
-                this.increment_index();
-            }  while(!is_whitespace(current_char) && !is_token_char(current_char) && !this.eof());
+                this.incrementIndex();
+            }  while(!isWhitespace(current_char) && !isTokenChar(current_char) && !this.eof());
         }
 
         return new JSONToken(token_sb.toString());
     }
 
+    /**
+     * Fetches all tokens of the input into this.tokens().
+     * Calls get_next_token() until the char_index is at the end of input.
+     *
+     * @throws JSONUnfinishedStringAtEOF If the input ends at unfinished String token.
+     */
     private void getTokens() throws JSONUnfinishedStringAtEOF{
         while(char_index < json_source.length()){
-            JSONToken token = this.get_next_token();
+            JSONToken token = this.getNextToken();
             tokens.add(token);
         }
     }
@@ -124,13 +130,13 @@ public class JSONParser {
      * @throws JSONMalformedSourceException When the array does not conform
      * to the grammar or an EOT is found during processing.
      */
-    private JSONValue get_array() throws JSONMalformedSourceException{
+    private JSONValue getArray() throws JSONMalformedSourceException{
 
         // The Array to be returned
         JSONArray array = new JSONArray();
 
         // token_index now points at START_OBJECT
-        increment_token();
+        incrementToken();
 
         // To deal with no trailing comma, we do these steps:
         // 1.) If the array contains no values, return empty array
@@ -144,13 +150,13 @@ public class JSONParser {
         }
 
         //Step 2.)
-        array.add(get_value());
+        array.add(getValue());
 
         // Step 3.)
         while(!this.eot() && current_token.type != TOKEN_TYPE.END_ARRAY){
             if(current_token.type == TOKEN_TYPE.ELEMENT_DELIMITER){
-                increment_token();
-                array.add(get_value());
+                incrementToken();
+                array.add(getValue());
             }
             else {
                 throw new MalformedParameterizedTypeException(
@@ -178,14 +184,14 @@ public class JSONParser {
                     "String expected in place of key. Found '" + current_token.value + "'");
         }
         String key = (String) current_token.value;
-        increment_token();
+        incrementToken();
 
         // Process delimiter (colon)
         if(current_token.type != TOKEN_TYPE.KEY_VALUE_DELIMITER){
             throw new JSONMalformedSourceException(
                     "Expeted ':' (colon) between key and value. Found '" + current_token.value + "'");
         }
-        increment_token();
+        incrementToken();
 
         // Process value
         JSONValue value = get_value();
@@ -197,7 +203,7 @@ public class JSONParser {
 
     /**
      * Processes a JSON object starting at the currently processed token.
-     * Utilizes the add_key_value function to process key-value pairs.
+     * Utilizes the addKeyValue function to process key-value pairs.
      * Expects the token_index to point at a START_OBJECT token ('{').
      * After running the current token points at the END_ARRAY token ('}').
      *
@@ -205,13 +211,13 @@ public class JSONParser {
      * @throws JSONMalformedSourceException When the object does not conform
      * to the grammar or an EOT is found during processing.
      */
-    private JSONValue get_object() throws JSONMalformedSourceException{
+    private JSONValue getObject() throws JSONMalformedSourceException{
 
         // The object to be returned
         JSONObject object = new JSONObject();
 
         // token_index now points at START_OBJECT
-        increment_token();
+        incrementToken();
 
         // To deal with no trailing comma, we do these steps:
             // 1.) If the object contains no values, return empty object
@@ -225,18 +231,18 @@ public class JSONParser {
         }
 
         // Step 2.)
-        add_key_value(object);
+        addKeyValue(object);
 
         // Step 3.)
         while(!this.eot() && current_token.type != TOKEN_TYPE.END_OBJECT){
             if(current_token.type == TOKEN_TYPE.ELEMENT_DELIMITER){
-                increment_token();
-                add_key_value(object);
+                incrementToken();
+                addKeyValue(object);
             }
             else {
                 throw new MalformedParameterizedTypeException(
                         "Expected an element separator between values in Object, found "
-                                + current_token.value.toString()
+                        + current_token.value.toString()
                 );
             }
         }
@@ -263,7 +269,7 @@ public class JSONParser {
      * @return JSONValue of the current token
      * @throws JSONMalformedSourceException If the current token is not a value
      */
-    private JSONValue get_value() throws JSONMalformedSourceException {
+    private JSONValue getValue() throws JSONMalformedSourceException {
 
         JSONToken current_token = tokens.get(token_index);
 
@@ -274,16 +280,17 @@ public class JSONParser {
             case NUMBER ->          value = new JSONValue((Double) current_token.value);
             case BOOLEAN ->         value = new JSONValue((boolean) current_token.value);
             case NULL ->            value = new JSONValue();
-            case START_ARRAY ->     value = get_array();
-            case START_OBJECT ->    value = get_object();
+            case START_ARRAY ->     value = getArray();
+            case START_OBJECT ->    value = getObject();
             default -> {
                 // The token is not value -> Throw
                 throw new JSONMalformedSourceException(
-                        "Expected a value, provided " + current_token.value.toString());
+                    "Expected a value, provided " + current_token.value.toString())
+                ;
             }
         }
 
-        increment_token();
+        incrementToken();
         return value;
     }
 
@@ -294,6 +301,6 @@ public class JSONParser {
         this.getTokens();
 
         // All JSON inputs must contain only one value
-        return get_value();
+        return getValue();
     }
 }
