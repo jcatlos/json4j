@@ -173,7 +173,9 @@ public class JSONParser {
 
     /**
      * Processes a JSON object starting at the currently processed token.
+     * Utilizes the add_key_value function to process key-value pairs.
      * Expects the token_index to point at a START_OBJECT token ('{').
+     * After running the current token points at the END_ARRAY token ('}').
      *
      * @return The JSON object wrapped in a JSONValue.
      * @throws JSONMalformedSourceException When the object does not conform
