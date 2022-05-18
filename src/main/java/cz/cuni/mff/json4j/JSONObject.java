@@ -11,10 +11,6 @@ public class JSONObject {
         values.put(key, value);
     }
 
-    public void add(JSONKeyValuePair pair){
-        values.put(pair.getKey(), pair.getValue());
-    }
-
     public JSONValue get(String key){
         return values.get(key);
     }
