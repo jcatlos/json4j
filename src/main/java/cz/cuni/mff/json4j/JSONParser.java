@@ -25,7 +25,7 @@ public class JSONParser {
     public JSONParser(String source_string){
 
         // Handle all unicode character sequences in the source
-        source = StringEscapeUtils.unescapeJava(source_string);
+        source = StringEscapeUtils.unescapeJava(source_string.trim());
 
         scope = new Stack<>();
 
@@ -137,7 +137,6 @@ public class JSONParser {
         System.out.println("got " + new_value);
         array.add(new_value);
 
-        increment_token();
         while(!this.eot() && current_token.type != TOKEN_TYPE.END_ARRAY){
             if(current_token.type == TOKEN_TYPE.ELEMENT_DELIMITER){
                 increment_token();
@@ -151,25 +150,34 @@ public class JSONParser {
                             + current_token.value.toString()
                 );
             }
-            increment_token();
+
         }
 
         return new JSONValue(array);
     }
 
     private void add_key_value(JSONObject object) throws JSONMalformedSourceException {
+        // Process Key name
         if(current_token.type != TOKEN_TYPE.STRING_LITERAL){
             throw new JSONMalformedSourceException(
                     "String expected in place of key. Found '" + current_token.value + "'");
         }
-
         String key = (String) current_token.value;
+        increment_token();
+
+        // Process delimiter (colon)
+        if(current_token.type != TOKEN_TYPE.KEY_VALUE_DELIMITER){
+            throw new JSONMalformedSourceException(
+                    "Expeted ':' (colon) between key and value. Found '" + current_token.value + "'");
+        }
+        increment_token();
+
+        // Process value
         JSONValue value = get_value();
         object.add(key, value);
 
         System.out.println("got " + key + " : " + value.toString());
 
-        increment_token();
     }
 
     private JSONValue get_object() throws JSONMalformedSourceException{
@@ -192,11 +200,10 @@ public class JSONParser {
             }
             else {
                 throw new MalformedParameterizedTypeException(
-                        "Expected an element separator between values in Array, found "
+                        "Expected an element separator between values in Object, found "
                                 + current_token.value.toString()
                 );
             }
-            increment_token();
         }
 
         return new JSONValue(object);
@@ -204,28 +211,20 @@ public class JSONParser {
 
     private JSONValue get_value() throws JSONMalformedSourceException {
         JSONToken current_token = tokens.get(token_index);
+        JSONValue value;
 
         switch(current_token.type) {
-            case STRING_LITERAL -> {
-                return new JSONValue((String) current_token.value);
-            }
-            case NUMBER -> {
-                return new JSONValue((Double) current_token.value);
-            }
-            case BOOLEAN -> {
-                return new JSONValue((boolean) current_token.value);
-            }
-            case NULL -> {
-                return new JSONValue();
-            }
-            case START_ARRAY -> {
-                return get_array();
-            }
-            case START_OBJECT -> {
-                return get_object();
-            }
+            case STRING_LITERAL -> value = new JSONValue((String) current_token.value);
+            case NUMBER -> value = new JSONValue((Double) current_token.value);
+            case BOOLEAN -> value = new JSONValue((boolean) current_token.value);
+            case NULL -> value = new JSONValue();
+            case START_ARRAY -> value = get_array();
+            case START_OBJECT -> value = get_object();
             default -> throw new JSONMalformedSourceException("Expected a value, provided " + current_token.value.toString());
         }
+
+        increment_token();
+        return value;
     }
 
     private void getTokens() throws JSONUnfinishedStringAtEOF{
