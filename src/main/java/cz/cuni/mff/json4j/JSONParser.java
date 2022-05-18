@@ -209,8 +209,8 @@ public class JSONParser {
             }
             else {
                 throw new MalformedParameterizedTypeException(
-                        "Expected an element separator between values in " +
-                                "Object, found " + current_token.value
+                        "Expected an element separator between values in Object, found "
+                                + current_token.value.toString()
                 );
             }
         }
