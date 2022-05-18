@@ -157,6 +157,51 @@ public class JSONParser {
         return new JSONValue(array);
     }
 
+    private void add_key_value(JSONObject object) throws JSONMalformedSourceException {
+        if(current_token.type != TOKEN_TYPE.STRING_LITERAL){
+            throw new JSONMalformedSourceException(
+                    "String expected in place of key. Found '" + current_token.value + "'");
+        }
+
+        String key = (String) current_token.value;
+        JSONValue value = get_value();
+        object.add(key, value);
+
+        System.out.println("got " + key + " : " + value.toString());
+
+        increment_token();
+    }
+
+    private JSONValue get_object() throws JSONMalformedSourceException{
+        JSONObject object = new JSONObject();
+        String new_key;
+        JSONValue new_value;
+
+        increment_token();
+
+        if(current_token.type == TOKEN_TYPE.END_OBJECT){
+            return new JSONValue(object);
+        }
+
+        add_key_value(object);
+
+        while(!this.eot() && current_token.type != TOKEN_TYPE.END_OBJECT){
+            if(current_token.type == TOKEN_TYPE.ELEMENT_DELIMITER){
+                increment_token();
+                add_key_value(object);
+            }
+            else {
+                throw new MalformedParameterizedTypeException(
+                        "Expected an element separator between values in Array, found "
+                                + current_token.value.toString()
+                );
+            }
+            increment_token();
+        }
+
+        return new JSONValue(object);
+    }
+
     private JSONValue get_value() throws JSONMalformedSourceException {
         JSONToken current_token = tokens.get(token_index);
 
@@ -177,11 +222,9 @@ public class JSONParser {
                 return get_array();
             }
             case START_OBJECT -> {
-                return new JSONValue();
+                return get_object();
             }
-            default -> {
-                throw new JSONMalformedSourceException("Expected a value, provided " + current_token.value.toString());
-            }
+            default -> throw new JSONMalformedSourceException("Expected a value, provided " + current_token.value.toString());
         }
     }
 
@@ -201,7 +244,10 @@ public class JSONParser {
         JSONValue read_value;
 
         this.getTokens();
-        values.add(get_value());
+
+        while(!eot()){
+            values.add(get_value());
+        }
 
         return values;
     }
