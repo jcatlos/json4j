@@ -51,6 +51,9 @@ public class JSONValue {
 
     @Override
     public String toString(){
+        if(this.type == JSON_TYPE.STRING){
+            return "\"" + this.value.toString() + "\"";
+        }
         return this.value.toString();
     }
 }
