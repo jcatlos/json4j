@@ -177,11 +177,23 @@ public class JSONParser {
         return new JSONValue(array);
     }
 
-    private void add_key_value(JSONObject object) throws JSONMalformedSourceException {
+    /**
+     * Processes a key-value pair and adds it to the JSONObject.
+     * The key must be a string and key and value must be separated by a colon (:).
+     *
+     * @param object The JSONObject to which the pair should be added.
+     * @throws JSONMalformedSourceException If the pair is not properly formed.
+     */
+    private void addKeyValue(JSONObject object) throws JSONMalformedSourceException {
+
         // Process Key name
         if(current_token.type != TOKEN_TYPE.STRING_LITERAL){
             throw new JSONMalformedSourceException(
-                    "String expected in place of key. Found '" + current_token.value + "'");
+                    String.format(
+                        "String expected in place of key. Found '%s'",
+                        current_token.value.toString()
+                    )
+            );
         }
         String key = (String) current_token.value;
         incrementToken();
@@ -189,16 +201,16 @@ public class JSONParser {
         // Process delimiter (colon)
         if(current_token.type != TOKEN_TYPE.KEY_VALUE_DELIMITER){
             throw new JSONMalformedSourceException(
-                    "Expeted ':' (colon) between key and value. Found '" + current_token.value + "'");
+                String.format(
+                    "Expeted ':' (colon) between key and value. Found '%s'",
+                    current_token.value.toString()
+                )
+            );
         }
         incrementToken();
 
         // Process value
-        JSONValue value = get_value();
-        object.put(key, value);
-
-        System.out.println("got " + key + " : " + value.toString());
-
+        object.put(key, getValue());
     }
 
     /**
