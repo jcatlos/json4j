@@ -5,7 +5,12 @@ import java.util.ArrayList;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-
+/**
+ * A class for deserializing a JSON from a String.
+ * The String should contain a single JSON Value (as is usually assumed).
+ * The JSON should be properly formatted according to the RFC-8259.
+ * An instance should be created for each String to be processed.
+ */
 public class JSONParser {
 
     // The String to be parsed
