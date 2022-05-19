@@ -8,6 +8,8 @@ In this user documentation, we first discuss the implemented interface
 for interacting with JSON and then about ways to serialize and deserialize 
 JSON.
 
+The JavaDoc is generated in the `doc/` folder.
+
 ## Type representation
 This section talks about the usage of the classes implemented for 
 working with JSON.
