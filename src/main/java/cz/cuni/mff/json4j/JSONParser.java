@@ -68,6 +68,20 @@ public class JSONParser {
         return false;
     }
 
+    /**
+     * Fetches next token from this.json_source.
+     * After the function call, the char_index is moved after the last char
+     * of the token.
+     * In case of multi-character tokens (numbers and non-String literals),
+     * parsing stops upon encountering a whitespace, token character or EOF.
+     * In case of String literals, tha parsing stops upon the second
+     * appearance of QUOTECHAR. Throws in case of EOF before the ending QUOTECHAR.
+     * In case of invalid sequence of characters, a JSONToken with
+     * token_type = INVALID_TOKEN is returned.
+     *
+     * @return Next JSON token from the source String
+     * @throws JSONUnfinishedStringAtEOF If EOF is encountered inside an unfinished String.
+     */
     private JSONToken getNextToken() throws JSONUnfinishedStringAtEOF {
 
         // Handle being at the end of source
@@ -82,6 +96,7 @@ public class JSONParser {
 
         StringBuilder token_sb = new StringBuilder();
 
+        // Next token is String
         if(current_char == QUOTE_CHAR){
            do {
                 token_sb.append(current_char);
@@ -93,11 +108,15 @@ public class JSONParser {
             token_sb.append(current_char);
             this.incrementIndex();
         }
+        // Next token is single-character (brackets, comma, etc...)
         else if(isTokenChar(current_char)){
             String token_string = new String(new char[]{current_char});
             this.incrementIndex();
+
             return new JSONToken(token_string);
         }
+        // Next token is a literal (number/boolean/null)
+            // Validity is checked in the next step
         else{
             do {
                 token_sb.append(current_char);
@@ -105,6 +124,7 @@ public class JSONParser {
             }  while(!isWhitespace(current_char) && !isTokenChar(current_char) && !this.eof());
         }
 
+        // This constructor checks the validity of the fetched character sequence
         return new JSONToken(token_sb.toString());
     }
 
