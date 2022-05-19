@@ -42,6 +42,15 @@ public class JSONArray {
     }
 
     /**
+     * Removes an element at the index.
+     * @param index of the value to be removed.
+     * @return The removed value.
+     */
+    public JSONValue remove(int index){
+        return values.remove(index);
+    }
+
+    /**
      * Get the size of the Array.
      * @return Number of elements in the Array.
      */
