@@ -1,19 +1,21 @@
 package cz.cuni.mff.json4j;
 
+/**
+ * Enumeration of the JSONToken types
+ */
 enum TOKEN_TYPE {
-    START_OBJECT,
-    END_OBJECT,
-    START_ARRAY,
-    END_ARRAY,
-    ELEMENT_DELIMITER,
-    KEY_VALUE_DELIMITER,
-    STRING_LITERAL,
-    NUMBER,
-    BOOLEAN,
-    NULL,
-    INVALID_TOKEN,
-    EOF;
-
+    START_OBJECT,           // '{'
+    END_OBJECT,             // '}'
+    START_ARRAY,            // '['
+    END_ARRAY,              // ']'
+    ELEMENT_DELIMITER,      // ','
+    KEY_VALUE_DELIMITER,    // ':'
+    STRING_LITERAL,         // A string enclosed in quotes ('"')
+    NUMBER,                 // Any number that fits to double
+    BOOLEAN,                // "true" or "false" (without the quotes)
+    NULL,                   // "null" (without the quotes)
+    EOF,                    // The token signifying the end of file
+    INVALID_TOKEN;          // Anything other is evaluated as invalid
 }
 
 public class JSONToken {
