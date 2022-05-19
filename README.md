@@ -88,3 +88,18 @@ line, and the object hierarchy is pictured by increasing indentation.
 
 Note, that these 2 functions show a difference only when used on 
 Arrays and objects, as all other literals are printed the same.
+
+```
+Example of serialize_compact():
+{"name":"John Doe","address":{"street_name":"Patkova 3","postcode":18000,"city":"Praha"}}
+
+Example of serialize_readable():
+{
+    "name" : "John Doe",
+    "address" : {
+        "street_name" : "Patkova 3",
+        "postcode" : 18000,
+        "city" : "Praha"
+        }
+}
+```
