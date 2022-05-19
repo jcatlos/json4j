@@ -12,21 +12,20 @@ enum TOKEN_TYPE {
     BOOLEAN,
     NULL,
     INVALID_TOKEN,
-    EOF
-    ;
+    EOF;
 
 }
 
 public class JSONToken {
 
     // CHARACTER CONSTANTS
-    final static String KEY_VALUE_DELIMITER = ":";
-    final static String ELEMENT_DELIMITER   = ",";
+    private final static String KEY_VALUE_DELIMITER = ":";
+    private final static String ELEMENT_DELIMITER   = ",";
 
-    final static String START_OBJECT  = "{";
-    final static String END_OBJECT    = "}";
-    final static String START_ARRAY   = "[";
-    final static String END_ARRAY     = "]";
+    private final static String START_OBJECT  = "{";
+    private final static String END_OBJECT    = "}";
+    private final static String START_ARRAY   = "[";
+    private final static String END_ARRAY     = "]";
 
     public final TOKEN_TYPE type;
     public final Object value;
