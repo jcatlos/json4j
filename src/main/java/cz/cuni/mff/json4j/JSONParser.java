@@ -8,12 +8,17 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 public class JSONParser {
 
-    private String json_source;
+    // The String to be parsed
+    private final String json_source;
 
+    // Currently processed character of the string
     private int char_index;
     private Character current_char;
 
+    // The list of all tokens obtained by calling getTokens()
     private ArrayList<JSONToken> tokens;
+
+    // Currently processed token from this.tokens
     private int token_index;
     private JSONToken current_token;
 
@@ -22,39 +27,72 @@ public class JSONParser {
     private final static char[] WHITESPACE = {' ', '\t', '\n', '\r'};
     private final static char[] TOKEN_CHARS = {'{', '}', '[', ']', ',', ':'};
 
+    /**
+     * Creates a JSONParser to process the provided String.
+     * The String can then be parsed by calling this.parseString().
+     *
+     * @param source_string A String containing a single JSON value.
+     */
     public JSONParser(String source_string){
 
         // Handle all unicode character sequences in the source
         json_source = StringEscapeUtils.unescapeJava(source_string.trim());
 
-        // Initialize reading index and current_char at the beginning
+        // Initialize the character reading index and current_char at the beginning
         char_index = 0;
         if(json_source.length() > 0){
             current_char = json_source.charAt(0);
         }
 
+        // Initialize the token reading index and current_token at the beginning
+            // Note that these are invalid until this.getTokens() is called
         token_index = 0;
         tokens = new ArrayList<>();
     }
 
+    /**
+     * Checks if the input String was processed whole.
+     * @return whether the end of the input String was encountered.
+     */
     private boolean eof(){
         return char_index >= json_source.length();
     }
 
+    /**
+     * Checks if there is a token to be processed.
+     * @return whether there is a token to be processed.
+     */
     private boolean eot(){
         return token_index >= tokens.size();
     }
 
+    /**
+     * Moves to processing of the next token from the tokenized input.
+     * Increases the internal token_index variable and updates this.current_token.
+     * In case of overflowing the size of the this.tokens, sets current_token = null.
+     */
     private void incrementToken(){
         token_index++;
         current_token = this.eot() ? null : this.tokens.get(token_index);
     }
 
+    /**
+     * Moves to processing of the next character of the input JSON String.
+     * Increases the internal char_index variable and updates this.current_char.
+     * In case of overflowing the size of the json_source, sets current_char = null.
+     */
     private void incrementIndex(){
         char_index++;
         current_char = this.eof() ? null : json_source.charAt(char_index);
     }
 
+    /**
+     * Checks if the char is whitespace.
+     * Whitespace characters for the purposes of JSON are listed in RFC 8259.
+     *
+     * @param c The character to be checked
+     * @return Boolean whether the character is a whitespace character.
+     */
     private static boolean isWhitespace(char c){
         for(char ws: WHITESPACE){
             if(ws == c) return true;
@@ -62,6 +100,12 @@ public class JSONParser {
         return false;
     }
 
+    /**
+     * Checks if the char is a single-character token.
+     *
+     * @param c The character to be checked
+     * @return Boolean whether the character is a token.
+     */
     private static boolean isTokenChar(char c){
         for(char tk: TOKEN_CHARS){
             if(tk == c) return true;
@@ -79,6 +123,7 @@ public class JSONParser {
      * appearance of QUOTECHAR. Throws in case of EOF before the ending QUOTECHAR.
      * In case of invalid sequence of characters, a JSONToken with
      * token_type = INVALID_TOKEN is returned.
+     * In case of calling this function at the end of the file, generates an EOF token.
      *
      * @return Next JSON token from the source String
      * @throws JSONUnfinishedStringAtEOF If EOF is encountered inside an unfinished String.
