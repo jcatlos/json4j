@@ -58,6 +58,7 @@ public class JSONArray {
 
     /**
      * Creates a JSON Array From the list of JSON Values.
+     * @param values The LinkedList from which the JSONArray can be constructed.
      */
     public JSONArray(LinkedList<JSONValue> values){
         this.values = values;
