@@ -29,6 +29,15 @@ public class JSONObject {
     }
 
     /**
+     * Removes the value associated with the key.
+     * @param key of the value to be removed.
+     * @return The removed value.
+     */
+    public JSONValue remove(String key){
+        return values.remove(key);
+    }
+
+    /**
      * Get the value associated to the provided key.
      * @param key Key used to find the value. Note that this MUST NOT be
      *            wrapped in the JSOValue wrapper.
