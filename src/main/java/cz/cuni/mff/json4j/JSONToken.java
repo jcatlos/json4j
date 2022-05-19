@@ -1,7 +1,8 @@
 package cz.cuni.mff.json4j;
 
 /**
- * Enumeration of the JSONToken types
+ * Enumeration of the JSONToken types.
+ * Not public, since there is no reason to use it outside parser implementation.
  */
 enum TOKEN_TYPE {
     START_OBJECT,           // '{'
@@ -18,7 +19,15 @@ enum TOKEN_TYPE {
     INVALID_TOKEN;          // Anything other is evaluated as invalid
 }
 
-public class JSONToken {
+
+/**
+ * Implementation of a lexical token for the purposes of the JSONParser.
+ * Holds the token's type and also its value. That makes sense only for values,
+ * so for other token types there are sensible defaults chosen.
+ * Not public, since there is no reason to use it outside parser implementation.
+ */
+
+class JSONToken {
 
     // CHARACTER CONSTANTS
     private final static String KEY_VALUE_DELIMITER = ":";
@@ -29,19 +38,48 @@ public class JSONToken {
     private final static String START_ARRAY   = "[";
     private final static String END_ARRAY     = "]";
 
+    /**
+     * Type of the token.
+     * Used to determine the type of the value it holds.
+     */
     public final TOKEN_TYPE type;
+
+    /**
+     * Value the token holds.
+     * Needs to be casted to the proper type when used. Use this.type to determine it.
+     */
     public final Object value;
 
 
+    /**
+     * Creates an EOF token.
+     * There is no sensible way of recognizing an EOF token based on its value
+     * and all moments when an EOF token should be emitted are explicitly known,
+     * creating a function to produce an EOF token is the most elegant solution.
+     * @return A token with type TOKEN_TYPE.EOF and value = null.
+     */
     public static JSONToken generateEOFToken(){
         return new JSONToken(TOKEN_TYPE.EOF, null);
     }
 
+    /**
+     * Creates a token with specified fields.
+     * Used only in generateEOFToken() and therefore private.
+     * @param type TOKEN_TYPE of the token.
+     * @param value value of the token.
+     */
     private JSONToken(TOKEN_TYPE type, Object value){
         this.type = type;
         this.value = value;
     }
 
+    /**
+     * Creates an appropriate token based on the provided value.
+     * Thanks to the nature of the JSON grammar, the token type can be determined
+     * solely (except for EOF) based on the textual value (no context required).
+     * @param token_string the string read from a JSON that should be transformed
+     *                     into a token.
+     */
     public JSONToken(String token_string){
         switch (token_string){
             case START_OBJECT -> {
