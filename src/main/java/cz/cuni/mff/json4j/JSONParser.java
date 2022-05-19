@@ -8,18 +8,19 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 public class JSONParser {
 
-    int char_index;
-    Character current_char;
-    String json_source;
+    private String json_source;
 
-    ArrayList<JSONToken> tokens;
-    int token_index;
-    JSONToken current_token;
+    private int char_index;
+    private Character current_char;
+
+    private ArrayList<JSONToken> tokens;
+    private int token_index;
+    private JSONToken current_token;
 
     // CHARACTER CONSTANTS
-    final static char QUOTE_CHAR = '"';
-    final static char[] WHITESPACE = {' ', '\t', '\n', '\r'};
-    final static char[] TOKEN_CHARS = {'{', '}', '[', ']', ',', ':'};
+    private final static char QUOTE_CHAR = '"';
+    private final static char[] WHITESPACE = {' ', '\t', '\n', '\r'};
+    private final static char[] TOKEN_CHARS = {'{', '}', '[', ']', ',', ':'};
 
     public JSONParser(String source_string){
 
